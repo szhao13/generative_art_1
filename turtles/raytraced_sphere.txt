@@ -1,0 +1,121 @@
+Canvas.setpenopacity(.2);
+
+const canvas_size = 90;
+const turtle_dim = 32;
+const num_iterations = 100;
+const turtles = [];
+
+const brown_rot = 360;
+const brown_for_min = 1;
+const brown_for_max = 10;
+
+const light_position = [-2,3,-4];
+const ro = [0,0,-3.5];
+const sphere_pos = [-.2,0,0];
+
+for (let x=0; x<turtle_dim; x++) {
+    for (let y=0; y<turtle_dim; y++) {
+        turtles.push( new Turtle( (x/turtle_dim * 2 - 1 ) * canvas_size,
+                                  (y/turtle_dim * 2 - 1 ) * canvas_size));
+    }   
+}
+
+function get_image_intensity(x,y) {
+    x /= canvas_size;
+    y /= canvas_size;
+    
+    const rd = vec_normalize([x,-y,2]);
+    let normal;
+    let light = 0;
+    let hit;
+    let plane_hit = false;
+    
+    let dist = intersect_sphere(ro, rd, sphere_pos, 1);
+    if (dist > 0) {
+        hit = vec_add(ro, vec_mul(rd, dist));
+        normal = vec_normalize(hit);
+    } else {
+        dist = 10000;
+    }
+    if (rd[1] < 0) {
+        const plane_dist = -1/rd[1];
+       if (plane_dist < dist) {
+            dist = plane_dist;
+            plane_hit = true;
+            hit = vec_add(ro, vec_mul(rd, dist));
+            normal = [0,1,0];
+        }
+    } 
+    
+    if (dist > 0 && dist < 100) {
+        let vec_to_light = vec_sub(hit, light_position);
+        const light_dist_sqr = vec_dot(vec_to_light, vec_to_light);
+        
+        vec_to_light = vec_mul(vec_to_light, -1/Math.sqrt(light_dist_sqr));
+        
+        let light = vec_dot(normal, vec_to_light);
+        light *= 30 / light_dist_sqr;
+        
+        // shadow ?
+        if (plane_hit && intersect_sphere(hit, vec_to_light, sphere_pos, 1) > 0) {
+            light = 0;
+        }
+        
+        return Math.sqrt(Math.min(1, Math.max(0,light)));
+    } else {
+        return 0;
+    }
+}
+
+function move_turtle(t) {
+    // brownian movement, random rotation:
+    t.penup();
+    t.goto( (Math.random()-.5)*2*canvas_size, (Math.random()-.5)*2*canvas_size);
+    t.right( Math.random() * brown_rot );
+    // distance dependent on brightness scene
+    const int = 1 - get_image_intensity( t.xcor(), t.ycor() );
+    const dist = brown_for_min + (brown_for_max-brown_for_min) * int;
+    
+    t.backward(dist/2);
+    t.pendown();
+    t.forward(dist);
+}
+
+// The walk function will be called until it returns false.
+function walk(i) {
+    for (let j=0; j<turtles.length; j++) {
+        move_turtle(turtles[j]);
+    }
+    return i < num_iterations;
+}
+
+// math functions
+function vec_normalize(a) {
+    const l = Math.sqrt(vec_dot(a,a));
+    return [a[0]/l,a[1]/l,a[2]/l];
+}
+
+function vec_add(a, b) {
+    return [a[0]+b[0], a[1]+b[1], a[2]+b[2]]
+}
+
+function vec_mul(a, b) {
+    return [a[0]*b, a[1]*b, a[2]*b]
+}
+
+function vec_sub(a, b) {
+    return [a[0]-b[0], a[1]-b[1], a[2]-b[2]]
+}
+
+function vec_dot(a, b) {
+    return a[0]*b[0]+a[1]*b[1]+a[2]*b[2];
+}
+
+function intersect_sphere(ro, rd, center, radius) {
+    const oc = vec_sub(ro, center);
+	const b = vec_dot( oc, rd );
+	const c = vec_dot( oc, oc ) - radius * radius;
+	const h = b*b - c;
+	if( h<0 ) return -1;
+	return -b - Math.sqrt( h );
+}
