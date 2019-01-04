@@ -102,6 +102,28 @@ bool chooseCloserIntersection( float dist, inout float best_dist, inout Intersec
 // put any general convenience functions you want up here
 // ----------- STUDENT CODE BEGIN ------------
 // ----------- Our reference solution uses 135 lines of code.
+float findTriangleArea(vec3 t1, vec3 t2, vec3 t3) {
+    vec3 e1 = t2 - t1;
+    vec3 e2 = t3 - t1;
+    vec3 e3 = cross(e1, e2);
+    float area = 0.5*length(e3);
+    return area;
+}
+
+float findNorm(vec3 t1, vec3 t2, vec3 t3, out vec3 norm) {
+    vec3 normal = cross(t2-t1, t3-t1);
+    norm = normal / sqrt(dot(normal, normal));
+    return dot(norm, t1 - t2);
+}
+
+    // e1.x = t2.x - t1.x;
+    // e1.y = t2.y - t1.y;
+    // e1.z = t2.z - t1.z;
+
+    // e2.x = t3.x - t1.x;
+    // e2.y = t3.y - t1.y;
+    // e2.z = t3.z - t3
+
 // ----------- STUDENT CODE END ------------
 
 // forward declaration
@@ -127,7 +149,23 @@ float findIntersectionWithPlane( Ray ray, vec3 norm, float dist, out Intersectio
 float findIntersectionWithTriangle( Ray ray, vec3 t1, vec3 t2, vec3 t3, out Intersection intersect ) {
     // ----------- STUDENT CODE BEGIN ------------
     // ----------- Our reference solution uses 22 lines of code.
-    return INFINITY; // currently reports no intersection
+    
+    vec3 norm;
+    float dist = findNorm(t1, t2, t3, norm);
+    float len = findIntersectionWithPlane(ray, norm, dist, intersect);
+    vec3 p = intersect.position;
+    float alpha = findTriangleArea(t1, t2, p) / findTriangleArea(t1, t2, t3);
+    float beta = findTriangleArea(t1, p, t3) / findTriangleArea(t1, t2, t3);
+
+    if (alpha >= 0.0 && alpha <= 1.0 && beta >= 0.0 && beta <= 1.0 && alpha + beta <= 1.0) {
+        return len;
+        // printf("yes we got here");
+    }
+    else {
+        // printf("no we didn't get there :(");
+        return INFINITY;
+    }
+    // return INFINITY; // currently reports no intersection
     // ----------- STUDENT CODE END ------------
 }
 
