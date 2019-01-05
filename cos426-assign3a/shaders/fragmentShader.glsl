@@ -112,7 +112,7 @@ float findTriangleArea(vec3 t1, vec3 t2, vec3 t3) {
 
 float findNorm(vec3 t1, vec3 t2, vec3 t3, out vec3 norm) {
     vec3 normal = cross(t2-t1, t3-t1);
-    norm = normal / sqrt(dot(normal, normal));
+    norm = normalize(normal);
     return dot(norm, t1 - t2);
 }
 
@@ -156,16 +156,26 @@ float findIntersectionWithTriangle( Ray ray, vec3 t1, vec3 t2, vec3 t3, out Inte
     vec3 p = intersect.position;
     float alpha = findTriangleArea(t1, t2, p) / findTriangleArea(t1, t2, t3);
     float beta = findTriangleArea(t1, p, t3) / findTriangleArea(t1, t2, t3);
+    vec3 v1 = t1 - p;
+    vec3 v2 = t2 - p;
+    vec3 norm_n = normalize(norm);
+    // if (dot( ray, norm_n) < 0.0) {
+    //     return INFINITY;
+    // }
 
+    // else {
+    //     return len;
+    // }
     if (alpha >= 0.0 && alpha <= 1.0 && beta >= 0.0 && beta <= 1.0 && alpha + beta <= 1.0) {
         return len;
         // printf("yes we got here");
     }
+    
     else {
         // printf("no we didn't get there :(");
         return INFINITY;
     }
-    // return INFINITY; // currently reports no intersection
+     // currently reports no intersection
     // ----------- STUDENT CODE END ------------
 }
 
