@@ -116,6 +116,9 @@ float findNorm(vec3 t1, vec3 t2, vec3 t3, out vec3 norm) {
     return dot(norm, t1 - t2);
 }
 
+// float findDist(Ray ray, vec3 t1, vec3 t2, vec3 t3) {
+    
+// }
     // e1.x = t2.x - t1.x;
     // e1.y = t2.y - t1.y;
     // e1.z = t2.z - t1.z;
@@ -271,6 +274,12 @@ vec3 calculateSpecialDiffuseColor( Material mat, vec3 posIntersection, vec3 norm
     if ( mat.special == CHECKERBOARD ) {
         // do something here for checkerboard
         // ----------- Our reference solution uses 21 lines of code.
+        if (mod(floor(posIntersection.x) + floor(posIntersection.y), float(2)) == 1.0) {
+            return vec3(1.0, 1.0, 1.0);
+        }
+        else {
+            return vec3(0.0, 0.0, 0.0);
+        }
     } 
     else if ( mat.special == MYSPECIAL ) {
         // do something here for myspecial
