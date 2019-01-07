@@ -166,6 +166,7 @@ float findIntersectionWithTriangle( Ray ray, vec3 t1, vec3 t2, vec3 t3, out Inte
     //     return INFINITY;
     // }
 
+
     // else {
     //     return len;
     // }
