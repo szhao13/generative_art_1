@@ -169,11 +169,12 @@ float findIntersectionWithTriangle( Ray ray, vec3 t1, vec3 t2, vec3 t3, out Inte
     // ----------- Our reference solution uses 22 lines of code.
     
     vec3 norm = normalize(cross( t2 - t1, t3 - t2 ));
-    float dist = dot( norm, t1 );
+    float dist = dot( norm, t2 );
     float len = findIntersectionWithPlane( ray, norm, dist, intersect );
 
     vec3 v1 = t1 - intersect.position;
     vec3 v2 = t2 - intersect.position;
+    vec3 v3 = t3 - intersect.position;
 
     vec3 n1 = normalize(cross( v1, v2 ));
 
@@ -181,37 +182,20 @@ float findIntersectionWithTriangle( Ray ray, vec3 t1, vec3 t2, vec3 t3, out Inte
     	return INFINITY;
     }
 
+    vec3 n2 = normalize(cross( v2, v3 ));
+
+    if (dot( ray.direction, n2) < 0.0) {
+    	return INFINITY;
+    }
+
+    vec3 n3 = normalize(cross( v3, v1 ));
+
+    if (dot( ray.direction, n3) < 0.0) {
+    	return INFINITY;
+    }
+
     return len;
-    // vec3 n1 = cross(v2, v1);
-    // vec3 n1_norm = normalize(n1);
-
-    // vec3 norm;
-    // float dist = findNorm(t1, t2, t3, norm);
-    // float len = findIntersectionWithPlane(ray, norm, dist, intersect);
-    // vec3 p = intersect.position;
-    // float alpha = findTriangleArea(t1, t2, p) / findTriangleArea(t1, t2, t3);
-    // float beta = findTriangleArea(t1, p, t3) / findTriangleArea(t1, t2, t3);
-    // vec3 v1 = t1 - p;
-    // vec3 v2 = t2 - p;
-    // vec3 norm_n = normalize(norm);
-    // if (dot( ray, norm_n) < 0.0) {
-    //     return INFINITY;
-    // }
-
-
-    // else {
-    //     return len;
-    // }
-    // if (alpha >= 0.0 && alpha <= 1.0 && beta >= 0.0 && beta <= 1.0 && alpha + beta <= 1.0) {
-    //     return len;
-    //     // printf("yes we got here");
-    // }
     
-    // else {
-    //     // printf("no we didn't get there :(");
-    //     return INFINITY;
-    // }
-     // currently reports no intersection
     // ----------- STUDENT CODE END ------------
 }
 
@@ -234,15 +218,16 @@ float findIntersectionWithSphere( Ray ray, vec3 center, float radius, out Inters
     float t_hc = sqrt(radius*radius - d_squared);
     float t_1 = t_ca - t_hc;
     float t_2 = t_ca + t_hc;
-    float t;
+
     if (t_1 > 0.0) {
-    	t = t_1;
-    	intersect.position = rayGetOffset(ray, t);
-    	
+       	intersect.position = rayGetOffset(ray, t_1);
+    	intersect.normal = normalize(intersect.position - center);
+    	return t_1;
     }
     else if (t_2 > 0.0) {
-    	t = t_2;
-    	intersect.position = rayGetOffset(ray, t);
+    	intersect.position = rayGetOffset(ray, t_2);
+    	intersect.normal = normalize(intersect.position - center);
+    	return t_2;
     }
     
     return INFINITY; // currently reports no intersection
