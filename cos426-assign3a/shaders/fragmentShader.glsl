@@ -240,6 +240,7 @@ float findIntersectionWithBox( Ray ray, vec3 pmin, vec3 pmax, out Intersection o
     // pmin and pmax represent two bounding points of the box
     // pmin stores [xmin, ymin, zmin] and pmax stores [xmax, ymax, zmax]
     // ----------- Our reference solution uses 24 lines of code.
+    // vec3 s1 = pmax.x 
     return INFINITY; // currently reports no intersection
     // ----------- STUDENT CODE END ------------
 }  
@@ -254,8 +255,18 @@ float getIntersectOpenCylinder( Ray ray, vec3 center, vec3 axis, float len, floa
 
 float getIntersectDisc( Ray ray, vec3 center, vec3 norm, float rad, out Intersection intersect ) {
     // ----------- STUDENT CODE BEGIN ------------
-    // ----------- Our reference solution uses 15 lines of code.
-    return INFINITY; // currently reports no intersection
+    // ----------- Our reference solution uses 15 lines of code
+    float dist = dot(norm, center);
+
+    float len = findIntersectionWithPlane( ray, norm, dist, intersect );
+
+    if (abs(len(intersect.position - center)) > rad) {
+    	return INFINITY;
+    }
+    else {
+    	return len;
+    }
+    // currently reports no intersection
     // ----------- STUDENT CODE END ------------
 }
 
