@@ -259,12 +259,14 @@ float getIntersectDisc( Ray ray, vec3 center, vec3 norm, float rad, out Intersec
     float dist = dot(norm, center);
 
     float len = findIntersectionWithPlane( ray, norm, dist, intersect );
+    vec3 v = center - intersect.position;
+    float d_squared = dot(v, v);
 
-    if (abs(len(intersect.position - center)) > rad) {
-    	return INFINITY;
+    if ( d_squared < rad*rad) {
+    	return len;
     }
     else {
-    	return len;
+    	return INFINITY;
     }
     // currently reports no intersection
     // ----------- STUDENT CODE END ------------
