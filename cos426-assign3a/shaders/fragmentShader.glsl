@@ -102,19 +102,19 @@ bool chooseCloserIntersection( float dist, inout float best_dist, inout Intersec
 // put any general convenience functions you want up here
 // ----------- STUDENT CODE BEGIN ------------
 // ----------- Our reference solution uses 135 lines of code.
-float findTriangleArea(vec3 t1, vec3 t2, vec3 t3) {
-    vec3 e1 = t2 - t1;
-    vec3 e2 = t3 - t1;
-    vec3 e3 = cross(e1, e2);
-    float area = 0.5*length(e3);
-    return area;
-}
+// float findTriangleArea(vec3 t1, vec3 t2, vec3 t3) {
+//     vec3 e1 = t2 - t1;
+//     vec3 e2 = t3 - t1;
+//     vec3 e3 = cross(e1, e2);
+//     float area = 0.5*length(e3);
+//     return area;
+// }
 
-float findNorm(vec3 t1, vec3 t2, vec3 t3, out vec3 norm) {
-    vec3 normal = cross(t2-t1, t3-t1);
-    norm = normalize(normal);
-    return dot(norm, t1 - t2);
-}
+// float findNorm(vec3 t1, vec3 t2, vec3 t3, out vec3 norm) {
+//     vec3 normal = cross(t2-t1, t3-t1);
+//     norm = normalize(normal);
+//     return dot(norm, t1 - t2);
+// }
 
 // bool checkPointInsideTriangle(vec3 p1, vec3 p2) {
 // 	vec3 norm = normalize(cross( t2 - t1, t3 - t2 ));
@@ -162,7 +162,14 @@ float findIntersectionWithPlane( Ray ray, vec3 norm, float dist, out Intersectio
     intersect.normal   = norm;
     return len;
 }
-
+float findIntersectionFromThreePoints( Ray ray, vec3 t1, vec3 t2, vec3 t3, out Intersection intersect ) {
+    // ----------- STUDENT CODE BEGIN ------------
+    // ----------- Our reference solution uses 22 lines of code.
+    
+    vec3 norm = normalize(cross( t2 - t1, t3 - t2 ));
+    float dist = dot( norm, t2 );
+    return findIntersectionWithPlane( ray, norm, dist, intersect );
+}
 // Triangle
 float findIntersectionWithTriangle( Ray ray, vec3 t1, vec3 t2, vec3 t3, out Intersection intersect ) {
     // ----------- STUDENT CODE BEGIN ------------
@@ -240,7 +247,78 @@ float findIntersectionWithBox( Ray ray, vec3 pmin, vec3 pmax, out Intersection o
     // pmin and pmax represent two bounding points of the box
     // pmin stores [xmin, ymin, zmin] and pmax stores [xmax, ymax, zmax]
     // ----------- Our reference solution uses 24 lines of code.
-    // vec3 s1 = pmax.x 
+    // find three coordinates of front of box
+
+    float t1;
+    float t2;
+    float t;
+    float tmin = -INFINITY;
+    float tmax = INFINITY;
+    
+    vec3 invRayDirection = 1.0 / ray.direction;
+    if (ray.direction.x != 0.0) {
+        t1 = (pmin.x - ray.origin.x) * invRayDirection.x;
+        t2 = (pmax.x - ray.origin.x) * invRayDirection.x;
+        tmin = max(tmin, min(t1, t2));
+        tmax = min(tmax, max(t1, t2));
+    }
+
+    if (ray.direction.y != 0.0) {
+        t1 = (pmin.y - ray.origin.y) * invRayDirection.y;
+        t2 = (pmax.y - ray.origin.y) * invRayDirection.y;
+        tmin = max(tmin, min(t1, t2));
+        tmax = min(tmax, max(t1, t2));
+    }
+
+    if (ray.direction.z != 0.0) {
+        t1 = (pmin.z - ray.origin.z) * invRayDirection.z;
+        t2 = (pmax.z - ray.origin.z) * invRayDirection.z;
+        tmin = max(tmin, min(t1, t2));
+        tmax = min(tmax, max(t1, t2));
+    } 
+
+    if (tmin < 0.0) {
+        t = tmax;
+    }
+    else {
+        t = tmin;
+    }
+    out_intersect.position = rayGetOffset( ray, t );
+    return t;
+    // vec3 t_bot = invRayDirection * (pmin - ray.origin);
+    // vec3 t_top = invRayDirection * (pmax - ray.origin);
+    // vec3 t_min = min(t_top, t_bot);
+    // vec3 t_max = max(t_top, t_bot);
+    // vec2 t = max(tmax.xx, tmin.yz);
+    // float t_0 = max(t.x, t.y);
+    // t = min(t_max.xx, t_max.yz);
+    // float t_1 = min(t.x, t.y);
+    // out_intersect.
+
+
+    // vec3 s1 = vec3(pmin.x, pmin.y, pmin.z);
+    // vec3 s2 = vec3(pmin.x, pmax.y, pmin.z);
+    // vec3 s3 = vec3(pmax.x, pmin.y, pmin.z);
+
+    // vec3 s4 = vec3(pmax.x, pmax.y, pmin.z);
+    // vec3 s5 = vec3(pmax.x, pmax.y, pmax.z);
+    // vec3 s6 = vec3(pmax.x, pmin.y, pmax.z);
+
+    // vec3 s7 = vec3(pmin.x, pmin.y, pmax.z);
+    // vec3 s8 = vec3(pmin.x, pmax.y, pmax.z);
+
+    // float len1 = findIntersectionFromThreePoints( ray, s1, s2, s3, out_1);
+    // float len2 = findIntersectionFromThreePoints( ray, s3, s4, s5, out_2 );
+
+    // vec3 norm = normalize(cross( s2 - s1, s3 - s1 ));
+    // float dist = dot( norm, s1 );
+    // float len = findIntersectionWithPlane( ray, norm, dist, out_intersect );
+    
+    // // check if found intersection point is within the rectangle of the front of the box
+    // if (out_intersect.position.x >= pmin.x && out_intersect.position.x <= pmax.x && out_intersect.position.y >= pmin.y && out_intersect.position.y <= pmax.y) {
+    // 	return len;
+    // }
+
     return INFINITY; // currently reports no intersection
     // ----------- STUDENT CODE END ------------
 }  
@@ -331,7 +409,7 @@ vec3 calculateSpecialDiffuseColor( Material mat, vec3 posIntersection, vec3 norm
     if ( mat.special == CHECKERBOARD ) {
         // do something here for checkerboard
         // ----------- Our reference solution uses 21 lines of code.
-        if (mod(floor(posIntersection.x) + floor(posIntersection.y), float(2)) == 1.0) {
+        if (mod(floor(posIntersection.x) + floor(posIntersection.y + floor(posIntersection.z)), float(2)) == 1.0) {
             return vec3(1.0, 1.0, 1.0);
         }
         else {
