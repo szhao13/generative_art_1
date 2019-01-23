@@ -411,6 +411,7 @@ vec3 calculateSpecialDiffuseColor( Material mat, vec3 posIntersection, vec3 norm
         // ----------- Our reference solution uses 21 lines of code.
         if (mod(floor(posIntersection.x) + floor(posIntersection.y + floor(posIntersection.z)), float(2)) == 1.0) {
             return vec3(1.0, 1.0, 1.0);
+            
         }
         else {
             return vec3(0.0, 0.0, 0.0);
