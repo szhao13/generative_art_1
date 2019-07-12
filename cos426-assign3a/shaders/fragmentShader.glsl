@@ -327,6 +327,34 @@ float findIntersectionWithBox( Ray ray, vec3 pmin, vec3 pmax, out Intersection o
 float getIntersectOpenCylinder( Ray ray, vec3 center, vec3 axis, float len, float rad, out Intersection intersect ) {
     // ----------- STUDENT CODE BEGIN ------------
     // ----------- Our reference solution uses 31 lines of code.
+    // center = p_a + v_a*t
+    // rearranging: p_a = center - v_a*t
+    vec3 t;
+    vec3 v_a = axis;
+    vec3 p_a = center - axis * len/2.0;
+    vec3 p_0 = p_a;
+    vec3 p_1 = center + axis *len/2.0;
+    vec3 v = ray.direction;
+    vec3 p = ray.origin;
+
+    vec3 delta_p = p - p_a;
+
+    float a = (v - dot(v, v_a)*v_a)*(v - dot(v, v_a)*v_a);
+    float b = 2*dot((v - dot(v, v_a)*v_a), delta_p - dot(delta_p, v_a)*v_a);
+    float c = (delta_p - dot(delta_p, v_a)*v_a)*(delta_p - dot(delta_p, v_a)*v_a) - r*r;
+
+    float t_0 = (-1*b + sqrt(b*b - 4*a*c))/2.0/a;
+    float t_1 = (-1*b - sqrt(b*b - 4*a*c))/2.0/a;
+
+    vec3 q_0 = p + v * t_0;
+    vec3 q_1 = p + v * t_1;
+    if (t_0 >= 0 && dot(v_a, (q_0 - p_0)) > 0 && dot(v_a, (q_1 - p_1)) <d 0) {
+        intersect.origin = 
+        t = t_0;
+
+    }
+
+
     return INFINITY; // currently reports no intersection
     // ----------- STUDENT CODE END ------------
 }
