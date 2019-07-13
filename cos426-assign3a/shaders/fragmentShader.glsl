@@ -348,9 +348,13 @@ float getIntersectOpenCylinder( Ray ray, vec3 center, vec3 axis, float len, floa
 
     vec3 q_0 = p + v * t_0;
     vec3 q_1 = p + v * t_1;
-    if (t_0 >= 0 && dot(v_a, (q_0 - p_0)) > 0 && dot(v_a, (q_1 - p_1)) <d 0) {
-        intersect.origin = 
+    if (t_0 >= 0 && dot(v_a, (q_0 - p_0)) > 0 && dot(v_a, (q_0 - p_1)) < 0) {
         t = t_0;
+        if (t_1 >= 0 && dot(v_a, (q_1 - p_0)) > 0 && dot(v_a, (q_1 - p_1)) < 0) {
+            if (t_1 < t_0) {
+                t = t_1;
+                intersect.position = 
+            }
 
     }
 
