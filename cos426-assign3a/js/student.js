@@ -2,7 +2,7 @@ var Student = {
     // please fill in your name and NetID
     // your NetID is the part of your email before @princeton.edu
     'name'  : 'Shelley Zhao',
-    'netID' : 'shelleyz',
+    'netID' : 'POOOOOP',
 };
 
 Student.updateHTML = function( ) {

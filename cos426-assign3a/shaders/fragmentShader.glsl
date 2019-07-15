@@ -353,10 +353,16 @@ float getIntersectOpenCylinder( Ray ray, vec3 center, vec3 axis, float len, floa
         if (t_1 >= 0 && dot(v_a, (q_1 - p_0)) > 0 && dot(v_a, (q_1 - p_1)) < 0) {
             if (t_1 < t_0) {
                 t = t_1;
-                intersect.position = 
+
             }
+        }
 
     }
+    intersect.position = rayGetOffset( ray, t );
+    intersect.normal = normalize(intersect.position - center);
+    return t;
+
+    
 
 
     return INFINITY; // currently reports no intersection
