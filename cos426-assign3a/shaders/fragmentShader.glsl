@@ -329,7 +329,7 @@ float getIntersectOpenCylinder( Ray ray, vec3 center, vec3 axis, float len, floa
     // ----------- Our reference solution uses 31 lines of code.
     // center = p_a + v_a*t
     // rearranging: p_a = center - v_a*t
-    vec3 t;
+    float t;
     vec3 v_a = axis;
     vec3 p_a = center - axis * len/2.0;
     vec3 p_0 = p_a;
@@ -339,9 +339,10 @@ float getIntersectOpenCylinder( Ray ray, vec3 center, vec3 axis, float len, floa
 
     vec3 delta_p = p - p_a;
 
-    float a = (v - dot(v, v_a)*v_a)*(v - dot(v, v_a)*v_a);
-    float b = 2*dot((v - dot(v, v_a)*v_a), delta_p - dot(delta_p, v_a)*v_a);
-    float c = (delta_p - dot(delta_p, v_a)*v_a)*(delta_p - dot(delta_p, v_a)*v_a) - r*r;
+
+    float a = (v - v_a*dot(v, v_a))*(v  - v_a*dot(v, v_a));
+    vec3 b = 2*dot((v - dot(v, v_a)*v_a), delta_p - dot(delta_p, v_a)*v_a);
+    vec3 c = (delta_p - dot(delta_p, v_a)*v_a)*(delta_p - dot(delta_p, v_a)*v_a) - r*r;
 
     float t_0 = (-1*b + sqrt(b*b - 4*a*c))/2.0/a;
     float t_1 = (-1*b - sqrt(b*b - 4*a*c))/2.0/a;
