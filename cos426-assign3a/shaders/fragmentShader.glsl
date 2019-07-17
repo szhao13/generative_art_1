@@ -339,19 +339,19 @@ float getIntersectOpenCylinder( Ray ray, vec3 center, vec3 axis, float len, floa
 
     vec3 delta_p = p - p_a;
 
+    //vec3 a_1 = cross(v, v_a); //dot(cross(v, v_a), cross(v, v_a));    
+    float a = dot(cross(v, v_a), cross(v, v_a));// dot((v - v_a*dot(v, v_a)),(v  - v_a*dot(v, v_a)));
+    float b = 2.0 * dot(cross(v, v_a), cross(delta_p, v_a));//2*dot((v - dot(v, v_a)*v_a), delta_p - dot(delta_p, v_a)*v_a);
+    float c = dot(cross(delta_p, v_a), cross(delta_p, v_a)) - (rad*rad * dot(v_a, v_a));//(delta_p - dot(delta_p, v_a)*v_a)*(delta_p - dot(delta_p, v_a)*v_a) - r*r;
 
-    float a = (v - v_a*dot(v, v_a))*(v  - v_a*dot(v, v_a));
-    vec3 b = 2*dot((v - dot(v, v_a)*v_a), delta_p - dot(delta_p, v_a)*v_a);
-    vec3 c = (delta_p - dot(delta_p, v_a)*v_a)*(delta_p - dot(delta_p, v_a)*v_a) - r*r;
-
-    float t_0 = (-1*b + sqrt(b*b - 4*a*c))/2.0/a;
-    float t_1 = (-1*b - sqrt(b*b - 4*a*c))/2.0/a;
+    float t_0 = (-1.0*b + sqrt(b*b - 4.0*a*c))/2.0/a;
+    float t_1 = (-1.0*b - sqrt(b*b - 4.0*a*c))/2.0/a;
 
     vec3 q_0 = p + v * t_0;
     vec3 q_1 = p + v * t_1;
-    if (t_0 >= 0 && dot(v_a, (q_0 - p_0)) > 0 && dot(v_a, (q_0 - p_1)) < 0) {
+    if (t_0 >= 0.0 && dot(v_a, (q_0 - p_0)) > 0.0 && dot(v_a, (q_0 - p_1)) < 0.0) {
         t = t_0;
-        if (t_1 >= 0 && dot(v_a, (q_1 - p_0)) > 0 && dot(v_a, (q_1 - p_1)) < 0) {
+        if (t_1 >= 0.0 && dot(v_a, (q_1 - p_0)) > 0.0 && dot(v_a, (q_1 - p_1)) < 0.0) {
             if (t_1 < t_0) {
                 t = t_1;
 
