@@ -344,24 +344,29 @@ float getIntersectOpenCylinder( Ray ray, vec3 center, vec3 axis, float len, floa
     float b = 2.0 * dot(cross(v, v_a), cross(delta_p, v_a));//2*dot((v - dot(v, v_a)*v_a), delta_p - dot(delta_p, v_a)*v_a);
     float c = dot(cross(delta_p, v_a), cross(delta_p, v_a)) - (rad*rad * dot(v_a, v_a));//(delta_p - dot(delta_p, v_a)*v_a)*(delta_p - dot(delta_p, v_a)*v_a) - r*r;
 
-    float t_0 = (-1.0*b + sqrt(b*b - 4.0*a*c))/2.0/a;
-    float t_1 = (-1.0*b - sqrt(b*b - 4.0*a*c))/2.0/a;
+    float b24ac = b*b - 4.0*a*c;
+    if (b24ac < 0.0) return INFINITY;
+    float t_0 = (-1.0*b + b24ac)/2.0/a;
+    float t_1 = (-1.0*b - b24ac)/2.0/a;
 
     vec3 q_0 = p + v * t_0;
     vec3 q_1 = p + v * t_1;
-    if (t_0 >= 0.0 && dot(v_a, (q_0 - p_0)) > 0.0 && dot(v_a, (q_0 - p_1)) < 0.0) {
-        t = t_0;
-        if (t_1 >= 0.0 && dot(v_a, (q_1 - p_0)) > 0.0 && dot(v_a, (q_1 - p_1)) < 0.0) {
-            if (t_1 < t_0) {
-                t = t_1;
+    if (t_0 > 0.0 || t_1 > 0.0) {
+        if (t_0 > 0.0 && dot(v_a, (q_0 - p_0)) > 0.0 && dot(v_a, (q_0 - p_1)) < 0.0) {
+            t = t_0;
+            if (t_1 > 0.0 && dot(v_a, (q_1 - p_0)) > 0.0 && dot(v_a, (q_1 - p_1)) < 0.0) {
+                if (t_1 < t_0) {
+                    t = t_1;
 
+                }
             }
-        }
 
+        }
+        intersect.position = rayGetOffset( ray, t );
+        intersect.normal = normalize(intersect.position - center);
+        return t;
     }
-    intersect.position = rayGetOffset( ray, t );
-    intersect.normal = normalize(intersect.position - center);
-    return t;
+
 
     
 
