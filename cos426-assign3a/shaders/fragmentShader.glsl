@@ -329,11 +329,11 @@ float getIntersectOpenCylinder( Ray ray, vec3 center, vec3 axis, float len, floa
     // ----------- Our reference solution uses 31 lines of code.
     // center = p_a + v_a*t
     // rearranging: p_a = center - v_a*t
-    float t;
+    float t = INFINITY;
     vec3 v_a = axis;
-    vec3 p_a = center - (axis * len/4.0);
+    vec3 p_a = center - (axis * len/2.0);
     vec3 p_0 = p_a;
-    vec3 p_1 = center + axis *len/4.0;
+    vec3 p_1 = center + (axis *len/2.0);
     vec3 v = ray.direction;
     vec3 p = ray.origin;
 
@@ -352,27 +352,29 @@ float getIntersectOpenCylinder( Ray ray, vec3 center, vec3 axis, float len, floa
     vec3 q_0 = p + v * t_0;
     vec3 q_1 = p + v * t_1;
     if (t_0 > EPS || t_1 > EPS) {
-        // dot(v_a, (q_0 - p_0)) is the projection of 
+        // dot(v_a, (q_0 - p_0)) is the projection of v_a along the  
         if (t_0 > EPS && dot(v_a, (q_0 - p_0)) > EPS && dot(v_a, (q_0 - p_1)) < EPS) {
             t = t_0;
-            if (t_1 > EPS && dot(v_a, (q_1 - p_0)) > EPS && dot(v_a, (q_1 - p_1)) < EPS) {
-                if (t_1 < t_0) {
-                    t = t_1;
-
-                }
-            }
-
         }
-        intersect.position = rayGetOffset( ray, t );
-        intersect.normal = normalize(intersect.position - center);
-        return t;
+        if (t_1 > EPS && dot(v_a, (q_1 - p_0)) > EPS && dot(v_a, (q_1 - p_1)) < EPS) {
+            if (t_1 < t_0) {
+                t = t_1;
+
+            }
+        }
+
     }
+    if (t == INFINITY) return t;
+    intersect.position = rayGetOffset( ray, t );
+    intersect.normal = normalize(intersect.position - center);
+    return t;
+
 
 
     
 
 
-    return INFINITY; // currently reports no intersection
+ // currently reports no intersection
     // ----------- STUDENT CODE END ------------
 }
 
@@ -410,10 +412,10 @@ float findIntersectionWithCylinder( Ray ray, vec3 center, vec3 apex, float radiu
     chooseCloserIntersection( dist, best_dist, intersect, out_intersect );
 
     // -- two caps
-    // dist = getIntersectDisc( ray, center, axis, radius, intersect );
-    // chooseCloserIntersection( dist, best_dist, intersect, out_intersect );
-    // dist = getIntersectDisc( ray,   apex, axis, radius, intersect );
-    // chooseCloserIntersection( dist, best_dist, intersect, out_intersect );
+    dist = getIntersectDisc( ray, center, axis, radius, intersect );
+    chooseCloserIntersection( dist, best_dist, intersect, out_intersect );
+    dist = getIntersectDisc( ray,   apex, axis, radius, intersect );
+    chooseCloserIntersection( dist, best_dist, intersect, out_intersect );
 
     // dist = findIntersectionWithPlane( ray, axis, radius, intersect );
     // chooseCloserIntersection( dist, best_dist, intersect, out_intersect );
