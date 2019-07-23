@@ -328,11 +328,9 @@ float getIntersectOpenCylinder( Ray ray, vec3 center, vec3 axis, float len, floa
     // ----------- STUDENT CODE BEGIN ------------
     // ----------- Our reference solution uses 31 lines of code.
     // center = p_a + v_a*t
-    // rearranging: p_a = center - v_a*t
     float t = INFINITY;
     vec3 v_a = axis;
 
-    // vec3 p_0 = p_a;
     vec3 v = ray.direction;
     vec3 p = ray.origin;
 
@@ -342,21 +340,11 @@ float getIntersectOpenCylinder( Ray ray, vec3 center, vec3 axis, float len, floa
     float a = dot(cross(v, v_a), cross(v, v_a));// dot((v - v_a*dot(v, v_a)),(v  - v_a*dot(v, v_a)));
     float b = 2.0 * dot(cross(v, v_a), cross(delta_p, v_a));//2*dot((v - dot(v, v_a)*v_a), delta_p - dot(delta_p, v_a)*v_a);
     float c = dot(cross(delta_p, v_a), cross(delta_p, v_a)) - (rad*rad * dot(v_a, v_a));//(delta_p - dot(delta_p, v_a)*v_a)*(delta_p - dot(delta_p, v_a)*v_a) - r*r;
-    // float dotDirAxis = dot(v, v_a);
-    // vec3 aVec = v - dotDirAxis*v_a;
-
-    // float a = dot(aVec, aVec);
-    // float b = 2.0*dot(aVec, delta_p - dot(delta_p, v_a)*v_a);
-    // float c = dot(delta_p - dot(delta_p, v_a)*v_a, delta_p - dot(delta_p, v_a)*v_a) - rad*rad;
 
     float b24ac = sqrt(b*b - 4.0*a*c);
-    // if (b24ac < EPS) return INFINITY;
-    float tInt1 = (-b + b24ac)/(2.0*a);
-    float tInt2 = (-b - b24ac)/(2.0*a);
+    float tInt1 = (-b - b24ac)/(2.0*a);
+    float tInt2 = (-b + b24ac)/(2.0*a);
 
-    vec3 center2 = center + axis * len;
-    // float tInt1 = (-b - sqrt(b * b - 4.0 * a * c)) / (2.0 * a);
-    // float tInt2 = (-b + sqrt(b * b - 4.0 * a * c)) / (2.0 * a);
 
     float tInt = tInt1;
     vec3 intPt = rayGetOffset(ray, tInt);
@@ -374,47 +362,6 @@ float getIntersectOpenCylinder( Ray ray, vec3 center, vec3 axis, float len, floa
     intersect.position = intPt;
     intersect.normal = normalize(intPt - cylinderCenterAtHeight);
     return tInt;
-
-    // vec3 q_0 = rayGetOffset(ray, t_0);
-    // vec3 q_1 = rayGetOffset(ray, t_1);
-
-
-    // t = t_0;
-    // vec3 q = q_0;
-    // float heightCoord = dot(v_a, q - center);
-
-    // if (t < EPS || heightCoord < EPS || heightCoord > len) {
-    //     t = t_1;
-    //     q = q_1;
-    //     heightCoord = dot(v_a, q - center);
-    //     if (t < EPS || heightCoord < 0.0 || heightCoord > len) {
-    //         return INFINITY;
-    //     }
-    // }
-
-    // // if (t_0 > EPS || t_1 > EPS) {
-    // //     // dot(v_a, (q_0 - p_0)) is the projection of v_a along the  
-    // //     if (t_0 > EPS && t_0 < ) {//&& dot(v_a, (q_0 - p_0)) > EPS && dot(v_a, (q_0 - p_1)) < EPS) {
-    // //         t = t_0;
-    // //     }
-    // //     if (t_1 > EPS && t_1 < 1.0) {//dot(v_a, (q_1 - p_0)) > EPS && dot(v_a, (q_1 - p_1)) < EPS) {
-    // //         if (t_1 < t_0) {
-    // //             t = t_1;
-
-    // //         }
-    // //     }
-
-    
-    // // vec3 cylinderCenterAtHeight = center + axis * heightCoord;
-
-    // // intersect.position = rayGetOffset( ray, t );
-    // // intersect.normal = normalize(intersect.position - cylinderCenterAtHeight);
-    // // return t;
-
-    // vec3 cylinderCenterAtHeight = center + axis * heightCoord;
-    // intersect.position = q;
-    // intersect.normal = normalize(t - cylinderCenterAtHeight);
-    // return t;
 
     
 
@@ -474,6 +421,52 @@ float findIntersectionWithCylinder( Ray ray, vec3 center, vec3 apex, float radiu
 float getIntersectOpenCone( Ray ray, vec3 apex, vec3 axis, float len, float radius, out Intersection intersect ) {
     // ----------- STUDENT CODE BEGIN ------------
     // ----------- Our reference solution uses 31 lines of code.
+    float t = INFINITY;
+    vec3 v_a = axis;
+    vec3 p_a = apex;
+    float alpha = atan(len, radius);
+
+    vec3 v = ray.direction;
+    vec3 p = ray.origin;
+
+    vec3 delta_p = p - p_a;
+
+
+    float vdotv_a = dot(v, v_a);
+    vec3 v_vec = v - vdotv_a*v_a;
+    float v_vec2 = dot(v_vec, v_vec);
+    float dpdotv_a = dot(delta_p, v_a);
+    vec3 dp_vec = delta_p - dpdotv_a * v_a;
+    float dp_vec2 = dot(dp_vec, dp_vec);
+
+    float a = cos(alpha*(v_vec2))*cos(alpha*(v_vec2))- sin(alpha*vdotv_a*vdotv_a) * sin(alpha*vdotv_a*vdotv_a);// dot((v - v_a*dot(v, v_a)),(v  - v_a*dot(v, v_a)));
+    float b = 2.0*pow(cos(alpha*(dot(v_vec, dp_vec))), 2.0) - 2.0*pow(sin(alpha*vdotv_a*dpdotv_a), 2.0);
+    float c = pow(cos(alpha*dp_vec2), 2.0) - pow(sin(alpha * pow(dpdotv_a, 2.0)), 2.0);
+
+    float b24ac = sqrt(b*b - 4.0*a*c);
+    float tInt1 = (-b - b24ac)/(2.0*a);
+    float tInt2 = (-b + b24ac)/(2.0*a);
+
+
+    float tInt = tInt1;
+    vec3 intPt = rayGetOffset(ray, tInt);
+    float heightCoord = dot(axis, intPt - apex);
+    if (tInt < EPS || heightCoord < 0.0 || heightCoord > len) {
+        tInt = tInt2;
+        intPt = rayGetOffset(ray, tInt);
+        heightCoord = dot(axis, intPt - apex);
+        if (tInt < EPS || heightCoord < 0.0 || heightCoord > len) {
+            return INFINITY;
+        }
+    }
+
+    // vec3 cylinderCenterAtHeight = apex - axis * heightCoord;
+    intersect.position = intPt;
+    vec3 n = normalize(axis);
+    vec3 e = p - p_a;
+    intersect.normal = normalize(e - length(e)/cos(alpha) * n);
+    return tInt;
+
     return INFINITY; // currently reports no intersection
     // ----------- STUDENT CODE END ------------
 }
