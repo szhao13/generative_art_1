@@ -422,9 +422,14 @@ float getIntersectOpenCone( Ray ray, vec3 apex, vec3 axis, float len, float radi
     // ----------- STUDENT CODE BEGIN ------------
     // ----------- Our reference solution uses 31 lines of code.
     float t = INFINITY;
-    vec3 v_a = axis;
+    vec3 v_a = normalize(axis);
     vec3 p_a = apex;
-    float alpha = atan(len, radius);
+    float diagonal = sqrt(len*len + radius*radius);
+
+
+    float alpha = atan(radius, len);
+    float cos2alpha = cos(alpha) * cos(alpha);
+    float sin2alpha = sin(alpha) * sin(alpha);
 
     vec3 v = ray.direction;
     vec3 p = ray.origin;
@@ -439,10 +444,13 @@ float getIntersectOpenCone( Ray ray, vec3 apex, vec3 axis, float len, float radi
     vec3 dp_vec = delta_p - dpdotv_a * v_a;
     float dp_vec2 = dot(dp_vec, dp_vec);
 
-    float a = cos(alpha*(v_vec2))*cos(alpha*(v_vec2))- sin(alpha*vdotv_a*vdotv_a) * sin(alpha*vdotv_a*vdotv_a);// dot((v - v_a*dot(v, v_a)),(v  - v_a*dot(v, v_a)));
-    float b = 2.0*pow(cos(alpha*(dot(v_vec, dp_vec))), 2.0) - 2.0*pow(sin(alpha*vdotv_a*dpdotv_a), 2.0);
-    float c = pow(cos(alpha*dp_vec2), 2.0) - pow(sin(alpha * pow(dpdotv_a, 2.0)), 2.0);
+    float a = cos2alpha*(v_vec2)- sin2alpha*vdotv_a*vdotv_a;// dot((v - v_a*dot(v, v_a)),(v  - v_a*dot(v, v_a)));
+    float b = 2.0*cos2alpha*dot(v_vec, dp_vec) - 2.0*sin2alpha*vdotv_a*dpdotv_a;
+    float c = cos2alpha*dp_vec2 - sin2alpha*dpdotv_a*dpdotv_a;
 
+    // float a = pow(dot(p, v_a), 2.0) - pow(cos(alpha), 2.0);
+    // float b = 2.0*dot(p, v_a)*dot(delta_p, v_a) - dot(p, delta_p)*pow(cos(alpha), 2.0);
+    // float c = pow(dot(delta_p, v_a), 2.0) - dot(delta_p, delta_p)*pow(cos(alpha), 2.0);
     float b24ac = sqrt(b*b - 4.0*a*c);
     float tInt1 = (-b - b24ac)/(2.0*a);
     float tInt2 = (-b + b24ac)/(2.0*a);
