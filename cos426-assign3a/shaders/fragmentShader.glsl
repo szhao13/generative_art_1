@@ -538,6 +538,7 @@ bool pointInShadow( vec3 pos, vec3 lightVec ) {
     // ----------- STUDENT CODE BEGIN ------------
     // ----------- Our reference solution uses 10 lines of code.
     return false;
+    
     // ----------- STUDENT CODE END ------------
 }
 
