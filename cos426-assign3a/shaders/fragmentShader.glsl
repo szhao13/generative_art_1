@@ -448,9 +448,6 @@ float getIntersectOpenCone( Ray ray, vec3 apex, vec3 axis, float len, float radi
     float b = 2.0*cos2alpha*dot(v_vec, dp_vec) - 2.0*sin2alpha*vdotv_a*dpdotv_a;
     float c = cos2alpha*dp_vec2 - sin2alpha*dpdotv_a*dpdotv_a;
 
-    // float a = pow(dot(p, v_a), 2.0) - pow(cos(alpha), 2.0);
-    // float b = 2.0*dot(p, v_a)*dot(delta_p, v_a) - dot(p, delta_p)*pow(cos(alpha), 2.0);
-    // float c = pow(dot(delta_p, v_a), 2.0) - dot(delta_p, delta_p)*pow(cos(alpha), 2.0);
     float b24ac = sqrt(b*b - 4.0*a*c);
     float tInt1 = (-b - b24ac)/(2.0*a);
     float tInt2 = (-b + b24ac)/(2.0*a);
@@ -468,7 +465,6 @@ float getIntersectOpenCone( Ray ray, vec3 apex, vec3 axis, float len, float radi
         }
     }
 
-    // vec3 cylinderCenterAtHeight = apex - axis * heightCoord;
     intersect.position = intPt;
     vec3 n = normalize(axis);
     vec3 e = p - p_a;
@@ -507,12 +503,15 @@ vec3 calculateSpecialDiffuseColor( Material mat, vec3 posIntersection, vec3 norm
     if ( mat.special == CHECKERBOARD ) {
         // do something here for checkerboard
         // ----------- Our reference solution uses 21 lines of code.
-        if (mod(floor(posIntersection.x) + floor(posIntersection.y + floor(posIntersection.z)), float(2)) == 1.0) {
-            return vec3(1.0, 1.0, 1.0);
-            
+        float divs = 8.0 + 0.5 * sin(float(frame) * 0.02);
+        vec3 posEps = posIntersection / divs + EPS;
+        float coord = floor(posEps.x) + floor(posEps.y) + floor(posEps.z);
+        float modCoord = mod(coord, 2.0);
+        if (modCoord < 1.0) {
+            return mat.color * 0.5;
         }
         else {
-            return vec3(EPS, EPS, EPS);
+            mat.color;
         }
     } 
     else if ( mat.special == MYSPECIAL ) {
@@ -537,8 +536,21 @@ vec3 calculateDiffuseColor( Material mat, vec3 posIntersection, vec3 normalVecto
 bool pointInShadow( vec3 pos, vec3 lightVec ) {
     // ----------- STUDENT CODE BEGIN ------------
     // ----------- Our reference solution uses 10 lines of code.
+
+    float distToLight = length(lightVec);
+    if (distToLight < EPS) {
+        return false;
+    }
+    Ray ray;
+    ray.origin = pos;
+    ray.direction = lightVec / distToLight;
+    Material hitMaterial;
+    Intersection intersect;
+    float hitDist = rayIntersectScene(ray, hitMaterial, intersect);
+    return hitDist - distToLight < EPS;
+
     return false;
-    
+
     // ----------- STUDENT CODE END ------------
 }
 
